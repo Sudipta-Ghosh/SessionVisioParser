@@ -1,0 +1,77 @@
+<project name="VisioParser" default="buildWAR">
+
+	<!-- project-specific variables -->
+	<property file="buildxml.properties" />
+	<property name="webapp.dir" value="${TOMCAT_DEPLOYMENT_DIR}" />
+	<property name="src.dir" value="${APPLICATION_SRC}" />
+	<property name="web.dir" value="${WEB_DIR}" />
+
+
+	<!-- put everything in a temp folder with the right structure during the build -->
+	<property name="temp.dir" value="temp" />
+	<property name="temp.dir.web-inf" value="${temp.dir}/WEB-INF" />
+	<property name="temp.dir.lib" value="${temp.dir.web-inf}/lib" />
+	<property name="temp.dir.classes" value="${temp.dir.web-inf}/classes" />
+	<property name="temp.dir.meta-inf" value="${temp.dir}/META-INF" />
+	<property name="war.name" value="VisioLogParser.war" />
+	<!-- Application Classpath -->
+	<path id="build.class.path">
+		<fileset dir="${web.dir}/WEB-INF/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- Compiling the java source-->
+
+	<target name="compile" depends="prepare">
+		<echo>=== COMPILE ===</echo>
+		<echo>Compiling ${src.dir} files ...</echo>
+		<javac debug="on" srcdir="${src.dir}" destdir="${temp.dir.classes}" includes="**/*">
+			<classpath refid="build.class.path" />
+		</javac>
+	</target>
+	<target name="prepare" depends="clean">
+		<!-- create temp directories -->
+
+		<mkdir dir="${temp.dir}" />
+		<mkdir dir="${temp.dir.lib}" />
+		<mkdir dir="${temp.dir.meta-inf}" />
+		<mkdir dir="${temp.dir.web-inf}" />
+		<mkdir dir="${temp.dir.classes}" />
+	</target>
+
+	<target name="clean">
+		<!-- delete temp directories -->
+
+		<delete dir="${temp.dir}" />
+		<delete dir="${temp.dir.classes}" />
+		<delete dir="${temp.dir.meta-inf}" />
+		<delete dir="${temp.dir.web-inf}" />
+	</target>
+	<target name="buildWAR" depends="compile">
+		<copy file="${web.dir}/WEB-INF/web.xml" tofile="${temp.dir.web-inf}/web.xml" overwrite="true" />
+		<copy todir="${temp.dir.lib}">
+			<fileset dir="${web.dir}/WEB-INF/lib/">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+		<copy file="${user.dir}/properties/Menu.properties" tofile="${temp.dir.classes}/Menu.properties" overwrite="true" />
+		<war destfile="${war.name}" webxml="${temp.dir.web-inf}/web.xml" basedir="${temp.dir}">
+			<fileset dir="${web.dir}">
+				<exclude name="WEB-INF"/>
+			</fileset>	
+			
+		</war>
+	</target>
+	
+	
+</project>
+
+
+
+
+
+
+
+
+
